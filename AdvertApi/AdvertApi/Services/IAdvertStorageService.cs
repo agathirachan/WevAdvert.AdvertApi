@@ -9,6 +9,6 @@ namespace AdvertApi.Services
     public interface IAdvertStorageService
     {
         Task<string> Add(AdvertModel model);
-        Task<bool> Confirm(ConfimAdvertModelcs model);
+        Task Confirm(ConfimAdvertModel model);
     }
 }

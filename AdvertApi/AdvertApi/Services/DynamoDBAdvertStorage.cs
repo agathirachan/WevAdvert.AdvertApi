@@ -1,4 +1,5 @@
-﻿using AdvertApi.Models;
+﻿using AdvertApi.DbModels;
+using AdvertApi.Models;
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
 using AutoMapper;
@@ -33,9 +34,31 @@ namespace AdvertApi.Services
             return dbModel.Id;
         }
 
-        public Task<bool> Confirm(ConfimAdvertModelcs model)
+        public async Task Confirm(ConfimAdvertModel model)
         {
-            throw new NotImplementedException();
+            using (var client = new AmazonDynamoDBClient())
+            {
+                using (var context = new DynamoDBContext(client))
+                {
+                    var record = await context.LoadAsync<AdvertDbModel>(model.Id);
+                    if(record == null)
+                    {
+                        throw new KeyNotFoundException($"A record with ID= {model.Id} was not found.");
+                    }
+                    if(model.Status == AdvertStatus.Active)
+                    {
+                        record.Status = AdvertStatus.Active;
+                        await context.SaveAsync(record);
+                    }
+                    else
+                    {
+                        await context.DeleteAsync(record);
+                    }
+                   
+                }
+            }
+            return;
         }
+
     }
 }

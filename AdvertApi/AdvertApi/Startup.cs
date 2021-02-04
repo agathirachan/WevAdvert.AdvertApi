@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using AdvertApi.Services;
 
 namespace AdvertApi
 {
@@ -29,6 +30,7 @@ namespace AdvertApi
         {
             services.AddAutoMapper(options=> { 
             });
+            services.AddTransient<IAdvertStorageService, DynamoDBAdvertStorage>();
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
