@@ -13,6 +13,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using AdvertApi.Services;
+using AdvertApi.HealthChecks;
 
 namespace AdvertApi
 {
@@ -36,18 +37,23 @@ namespace AdvertApi
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "AdvertApi", Version = "v1" });
             });
+            //To add health check 
+            services.AddHealthChecks()
+                .AddCheck<StorageHealthCheck>("Storage");
+           
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+         
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "AdvertApi v1"));
             }
-
+            app.UseHealthChecks("/health");
             app.UseHttpsRedirection();
 
             app.UseRouting();
@@ -58,6 +64,7 @@ namespace AdvertApi
             {
                 endpoints.MapControllers();
             });
+   
         }
     }
 }
