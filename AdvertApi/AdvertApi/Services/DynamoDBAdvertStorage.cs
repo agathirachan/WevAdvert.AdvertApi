@@ -65,8 +65,7 @@ namespace AdvertApi.Services
                     else
                     {
                         await context.DeleteAsync(record);
-                    }
-                   
+                    }                  
                 }
             }
             return;
