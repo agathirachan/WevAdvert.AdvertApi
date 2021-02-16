@@ -14,6 +14,8 @@ using System.Threading.Tasks;
 using AutoMapper;
 using AdvertApi.Services;
 using AdvertApi.HealthChecks;
+using Microsoft.AspNetCore.HttpOverrides;
+using System.Net;
 
 namespace AdvertApi
 {
@@ -29,6 +31,12 @@ namespace AdvertApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+     
+             services.Configure<ForwardedHeadersOptions>(options =>
+            {
+                options.KnownProxies.Add(IPAddress.Parse("10.0.0.100"));
+            });
+    
             services.AddAutoMapper(options=> { 
             });
             services.AddTransient<IAdvertStorageService, DynamoDBAdvertStorage>();
@@ -40,13 +48,27 @@ namespace AdvertApi
             //To add health check 
             services.AddHealthChecks()
                 .AddCheck<StorageHealthCheck>("Storage");
-           
+            services.Configure<ForwardedHeadersOptions>(options =>
+            {
+                options.ForwardedHeaders =
+                    ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+            });
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-         
+
+            if (env.IsProduction())
+            {
+                // For Linux Apache Deployment
+                app.UseForwardedHeaders(new ForwardedHeadersOptions
+                {
+                    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+                });
+            }
+           
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
