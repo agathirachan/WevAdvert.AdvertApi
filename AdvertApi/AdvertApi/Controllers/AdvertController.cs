@@ -1,7 +1,11 @@
 ﻿using AdvertApi.Models;
+using AdvertApi.Models.Messages;
 using AdvertApi.Services;
+using Amazon.SimpleNotificationService;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,9 +18,11 @@ namespace AdvertApi.Controllers
     public class AdvertController : ControllerBase
     {
         private readonly IAdvertStorageService _advertStorageService;
-        public AdvertController(IAdvertStorageService advertStorageService)
+        private readonly IConfiguration _configuration;
+        public AdvertController(IAdvertStorageService advertStorageService, IConfiguration configuration)
         {
             this._advertStorageService = advertStorageService;
+            this._configuration = configuration;
         }
        
         [HttpPost]
@@ -48,6 +54,7 @@ namespace AdvertApi.Controllers
             try
             {
                  await _advertStorageService.Confirm(model);
+                await RaiseAdvertConfirmMessage(model);
             }
             catch (KeyNotFoundException ex)
             {
@@ -58,6 +65,23 @@ namespace AdvertApi.Controllers
                 return StatusCode(500, ex.Message);
             }
             return Ok();
+        }
+
+        [NonAction]
+        private async Task RaiseAdvertConfirmMessage(ConfimAdvertModel model)
+        {
+            var topicArn = _configuration.GetValue<string>("TopicArn");
+            var dbModel = await _advertStorageService.GetByIdAsync(model.Id);
+            using (var client = new AmazonSimpleNotificationServiceClient())
+            {
+                var message = new AdvertConfirmedMessage()
+                {
+                    Id = model.Id,
+                    Title =  dbModel.Title
+                };
+                var messageJson = JsonConvert.SerializeObject(message);
+                await client.PublishAsync(topicArn, messageJson);
+            }
         }
     }
 }
