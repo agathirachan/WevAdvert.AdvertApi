@@ -16,6 +16,9 @@ using AdvertApi.Services;
 using AdvertApi.HealthChecks;
 using Microsoft.AspNetCore.HttpOverrides;
 using System.Net;
+using Amazon.Util;
+using Amazon.ServiceDiscovery;
+using Amazon.ServiceDiscovery.Model;
 
 namespace AdvertApi
 {
@@ -41,17 +44,30 @@ namespace AdvertApi
             });
             services.AddTransient<IAdvertStorageService, DynamoDBAdvertStorage>();
             services.AddControllers();
-            services.AddSwaggerGen(c =>
-            {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "AdvertApi", Version = "v1" });
-            });
+           
             //To add health check 
             services.AddHealthChecks()
                 .AddCheck<StorageHealthCheck>("Storage");
+            services.AddCors(options =>
+            {
+                options.AddPolicy("AllOrigin", policy => policy.WithOrigins("*").AllowAnyHeader());
+            });
             services.Configure<ForwardedHeadersOptions>(options =>
             {
                 options.ForwardedHeaders =
                     ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+            });
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo
+                {
+                    Title = "Web Advertisement Apis",
+                    Version = "version 1",
+                    Contact = new OpenApiContact() {
+                        Name = "Agat Hirachan", 
+                        Email = "ahirachan@maharam.com" 
+                    }
+                });
             });
 
         }
@@ -75,6 +91,7 @@ namespace AdvertApi
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "AdvertApi v1"));
             }
+
             app.UseHealthChecks("/health");
             app.UseHttpsRedirection();
 
@@ -82,11 +99,36 @@ namespace AdvertApi
 
             app.UseAuthorization();
 
+
+            //await RegisterToCloudMap();
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
             });
    
+        }
+
+        private async Task RegisterToCloudMap()
+        {
+             string serviceId = Configuration.GetValue<string>("AwsCloudMapServiceId");
+            var instanceId = EC2InstanceMetadata.InstanceId;
+            if (!string.IsNullOrEmpty(instanceId))
+            {
+                var ipv4 = EC2InstanceMetadata.PrivateIpAddress;
+                var client = new AmazonServiceDiscoveryClient();
+               await client.RegisterInstanceAsync(new RegisterInstanceRequest
+                {
+                    InstanceId = instanceId,
+                    ServiceId = serviceId,
+                    Attributes = new Dictionary<string, string>()
+                    {
+                        {"AWS_INSTANCE_IPV4",ipv4 },
+                        { "AWS_INSTANCE_PORT", "80"}
+                    }
+                });
+
+            }
         }
     }
 }

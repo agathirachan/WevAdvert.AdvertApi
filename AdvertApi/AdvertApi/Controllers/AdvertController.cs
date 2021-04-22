@@ -2,6 +2,7 @@
 using AdvertApi.Models.Messages;
 using AdvertApi.Services;
 using Amazon.SimpleNotificationService;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -65,6 +66,36 @@ namespace AdvertApi.Controllers
                 return StatusCode(500, ex.Message);
             }
             return Ok();
+        }
+      
+        [HttpGet]
+        [Route("{id}")]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(200)]
+        public async Task<IActionResult> Get(string id)
+        {
+            try
+            {
+                var advert = await _advertStorageService.GetByIdAsync(id);
+                return new JsonResult(advert);
+            }
+            catch (KeyNotFoundException)
+            {
+                return new NotFoundResult();
+            }
+            catch (Exception)
+            {
+                return new StatusCodeResult(500);
+            }
+        }
+
+        [HttpGet]
+        [Route("all")]
+        [ProducesResponseType(200)]
+        [EnableCors("AllOrigin")]
+        public async Task<IActionResult> All()
+        {
+            return new JsonResult(await _advertStorageService.GetAllAsync());
         }
 
         [NonAction]
