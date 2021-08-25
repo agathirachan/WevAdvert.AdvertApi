@@ -25,6 +25,8 @@ namespace AdvertApi.Controllers
             this._advertStorageService = advertStorageService;
             this._configuration = configuration;
         }
+
+       
        
         [HttpPost]
         [ProducesResponseType(404)]

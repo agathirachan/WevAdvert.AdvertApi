@@ -35,10 +35,10 @@ namespace AdvertApi
         public void ConfigureServices(IServiceCollection services)
         {
      
-             services.Configure<ForwardedHeadersOptions>(options =>
-            {
-                options.KnownProxies.Add(IPAddress.Parse("10.0.0.100"));
-            });
+            // services.Configure<ForwardedHeadersOptions>(options =>
+            //{
+            //    options.KnownProxies.Add(IPAddress.Parse("10.0.0.100"));
+            //});
     
             services.AddAutoMapper(options=> { 
             });
@@ -64,8 +64,8 @@ namespace AdvertApi
                     Title = "Web Advertisement Apis",
                     Version = "version 1",
                     Contact = new OpenApiContact() {
-                        Name = "Agat Hirachan", 
-                        Email = "ahirachan@maharam.com" 
+                        Name = "", 
+                        Email = "" 
                     }
                 });
             });
@@ -76,14 +76,11 @@ namespace AdvertApi
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
 
-            if (env.IsProduction())
+            // For Linux Apache Deployment
+            app.UseForwardedHeaders(new ForwardedHeadersOptions
             {
-                // For Linux Apache Deployment
-                app.UseForwardedHeaders(new ForwardedHeadersOptions
-                {
-                    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
-                });
-            }
+                ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+            });
            
             if (env.IsDevelopment())
             {
