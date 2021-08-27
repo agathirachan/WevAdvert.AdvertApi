@@ -52,24 +52,24 @@ namespace AdvertApi
             {
                 options.AddPolicy("AllOrigin", policy => policy.WithOrigins("*").AllowAnyHeader());
             });
-            services.Configure<ForwardedHeadersOptions>(options =>
-            {
-                options.ForwardedHeaders =
-                    ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
-            });
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo
                 {
                     Title = "Web Advertisement Apis",
                     Version = "version 1",
-                    Contact = new OpenApiContact() {
-                        Name = "", 
-                        Email = "" 
+                    Contact = new OpenApiContact()
+                    {
+                        Name = "",
+                        Email = ""
                     }
                 });
             });
-
+            services.Configure<ForwardedHeadersOptions>(options =>
+            {
+                options.ForwardedHeaders =
+                    ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
