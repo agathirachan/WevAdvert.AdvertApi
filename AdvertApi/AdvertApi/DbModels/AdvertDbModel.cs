@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace AdvertApi.DbModels
 {
-    [DynamoDBTable("Advert")]
+    [DynamoDBTable("Adverts")]
     public class AdvertDbModel
     {
        [DynamoDBHashKey]
@@ -17,7 +17,7 @@ namespace AdvertApi.DbModels
         public string Title { get; set; }
 
         [DynamoDBProperty]
-        public int Description { get; set; }
+        public string Description { get; set; }
 
         [DynamoDBProperty]
         public double Price { get; set; }

@@ -29,8 +29,8 @@ namespace AdvertApi.Controllers
        
        
         [HttpPost]
-        [ProducesResponseType(404)]
-        [ProducesResponseType(201,Type=typeof(CreateAdvertResponse))]
+        //[ProducesResponseType(404)]
+        //[ProducesResponseType(201,Type=typeof(CreateAdvertResponse))]
         public  async Task<IActionResult> Create(AdvertModel model)
         {
             string recordId;

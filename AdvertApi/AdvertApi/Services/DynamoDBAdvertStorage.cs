@@ -20,8 +20,14 @@ namespace AdvertApi.Services
         }
         public async Task<string> Add(AdvertModel model)
         {
-            var dbModel = _mapper.Map<AdvertDbModel>(model);
-            dbModel.Id = new Guid().ToString();
+            //var dbModel = _mapper.Map<AdvertDbModel>(model);
+            AdvertDbModel dbModel = new AdvertDbModel()
+            {
+                Description = model.Description,
+                Price = model.Price,
+                Title = model.Title
+            };
+            dbModel.Id = Guid.NewGuid().ToString();
             dbModel.CreationDateTime = DateTime.UtcNow;
             dbModel.Status = AdvertStatus.Pending;
             using (var client = new AmazonDynamoDBClient())
