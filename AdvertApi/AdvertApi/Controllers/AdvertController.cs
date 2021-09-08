@@ -50,8 +50,8 @@ namespace AdvertApi.Controllers
         }
 
         [HttpPost]
-        [ProducesResponseType(404)]
-        [ProducesResponseType(201, Type = typeof(CreateAdvertResponse))]
+        //[ProducesResponseType(404)]
+        //[ProducesResponseType(201, Type = typeof(CreateAdvertResponse))]
         public async Task<IActionResult> Confirm(ConfimAdvertModel model)
         {
             try
@@ -72,8 +72,8 @@ namespace AdvertApi.Controllers
       
         [HttpGet]
         [Route("{id}")]
-        [ProducesResponseType(404)]
-        [ProducesResponseType(200)]
+        //[ProducesResponseType(404)]
+        //[ProducesResponseType(200)]
         public async Task<IActionResult> Get(string id)
         {
             try
@@ -93,8 +93,8 @@ namespace AdvertApi.Controllers
 
         [HttpGet]
         [Route("all")]
-        [ProducesResponseType(200)]
-        [EnableCors("AllOrigin")]
+        //[ProducesResponseType(200)]
+        //[EnableCors("AllOrigin")]
         public async Task<IActionResult> All()
         {
             return new JsonResult(await _advertStorageService.GetAllAsync());

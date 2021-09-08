@@ -85,7 +85,10 @@ namespace AdvertApi.Services
                 {
                     var scanResult =
                         await context.ScanAsync<AdvertDbModel>(new List<ScanCondition>()).GetNextSetAsync();
-                    return scanResult.Select(item => _mapper.Map<AdvertModel>(item)).ToList();
+                   // return scanResult.Select(item => _mapper.Map<AdvertModel>(item)).ToList();
+                    return scanResult.Select(item => new AdvertModel() {Description = item.Description,
+                                                                                        Price = item.Price,
+                                                                                        Title = item.Title}).ToList();
                 }
             }
         }
@@ -97,7 +100,8 @@ namespace AdvertApi.Services
                 using (var context = new DynamoDBContext(client))
                 {
                     var dbModel = await context.LoadAsync<AdvertDbModel>(id);
-                    if (dbModel != null) return _mapper.Map<AdvertModel>(dbModel);
+                  //  if (dbModel != null) return _mapper.Map<AdvertModel>(dbModel);
+                    if (dbModel != null) return new AdvertModel() {Description = dbModel.Description, Price = dbModel.Price, Title = dbModel.Title };
                 }
             }
 
